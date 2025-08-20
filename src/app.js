@@ -4,7 +4,6 @@ import express from 'express';
 
 import cardsRoutes from './routes/cardsRoutes.js';
 import gamesRoutes from './routes/gamesRoutes.js';
-import gameRulesRoutes from './routes/gameRulesRoutes.js';
 import playerCardRoutes from './routes/playerCardRoutes.js';
 import playersRoutes from './routes/playersRoutes.js';
 import scoresRoutes from './routes/scoresRoutes.js';
@@ -20,7 +19,6 @@ app.use('/api/games', gamesRoutes);
 app.use('/api/cards', cardsRoutes);
 app.use('/api/scores', scoresRoutes);
 app.use('/api', playerCardRoutes);
-app.use('/api/game', gameRulesRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {

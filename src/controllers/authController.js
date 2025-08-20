@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { Player } from '../orm/index.js';
 
-const SECRET = process.env.JWT_SECRET || 'secreto_ultra_seguro';
+const SECRET = process.env.JWT_SECRET;
 
 const register = async (req, res) => {
   const { username, email, password } = req.body;

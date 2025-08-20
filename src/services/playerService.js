@@ -1,6 +1,5 @@
 import { Player } from '../orm/index.js';
 import functional from '../utils/functional.js';
-import { Result } from '../utils/result.js';
 
 const { 
     map, 
@@ -53,41 +52,30 @@ const findPlayerBy = curry((predicate) => async (players) => {
     return find(predicate)(players);
 });
 
-// Funciones puras para validación usando Result Monad
-const validatePlayer = (player) => {
-    const requiredFields = ['username', 'email', 'password'];
-    const missingFields = requiredFields.filter(field => isEmpty(player[field]));
-    
-    if (missingFields.length > 0) {
-        return Result.Err(`Missing fields: ${missingFields.join(', ')}`);
-    }
-    return Result.Ok(player);
-};
-
-const normalizePlayerData = (player) => {
-    return Result.Ok({
-        ...player,
-        username: player.username ? player.username.trim() : player.username,
-        email: player.email ? player.email.trim().toLowerCase() : player.email
-    });
-};
-
-const persistPlayer = async (player) => {
-    try {
-        const sanitizedData = sanitizePlayerData(player);
-        const saved = await Player.create(sanitizedData);
-        return Result.Ok(transformPlayerData(saved.toJSON()));
-    } catch (e) {
-        return Result.Err(e.message);
-    }
-};
-
-// Crear un nuevo jugador usando Result Monad
+// Crear un nuevo jugador usando programación funcional
 const createPlayer = async (data) => {
-    return Result.Ok(data)
-        .flatMap(d => normalizePlayerData(d))
-        .flatMap(d => validatePlayer(d))
-        .flatMap(d => persistPlayer(d));
+    return tryCatch(
+        async () => {
+            // Validar datos de entrada
+            if (!isValidPlayerData(data)) {
+                throw new Error('Datos de jugador inválidos');
+            }
+
+            // Sanitizar datos
+            const sanitizedData = sanitizePlayerData(data);
+
+            // Crear jugador
+            const player = await Player.create(sanitizedData);
+
+            // Transformar y retornar datos
+            return transformPlayerData(player.toJSON());
+        }
+    )(
+        (error) => {
+            console.error('Error creating player:', error);
+            throw error;
+        }
+    )();
 };
 
 // Obtener jugador por ID usando programación funcional
